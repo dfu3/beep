@@ -14,6 +14,19 @@ p=pyaudio.PyAudio() # start the PyAudio class
 stream=p.open(format=pyaudio.paInt16,channels=1,rate=RATE,input=True,
               frames_per_buffer=CHUNK) #uses default input device
 
+thresholds = [
+
+    950000,#64
+    875000,#128
+    700000,#256
+    450000,#512
+    300000,#1024
+    200000,#2048
+    100000,#4096
+    20000#8192
+]
+highs = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
 try:
     ampRange = set()
     spectrum = dict()
@@ -28,18 +41,18 @@ try:
         fft = fft[:int(len(fft)/2)] #nyquist 
         freq = np.fft.fftfreq(CHUNK,1.0/RATE)
         freq = freq[:int(len(freq)/2)] #nyquist
-        
-        for i in range(GROUPS):
 
+        lastTarg = 0   
+        for i in range(len(thresholds)):
             target = (2**(i+6))
-            thres = BASE-int( ((i*100000)+((target/((GROUPS-i)*5))*100)) )
+            thres = thresholds[i]
+            high = highs[i]
+            
             ampl = fft[np.where(freq>target)[0][0]]
+            if( ampl > high): high = ampl
             
             if(ampl > thres):
-                cleaned = convert(ampl, thres, high, i+1)
-                if( cleaned > high): high = cleaned
-                if( cleaned < low): low = cleaned
-                spectrum[target] = cleaned
+                spectrum[target] = convert(ampl, high, thres)
             else:
                 spectrum[target] = 0
 

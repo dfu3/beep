@@ -1,8 +1,8 @@
 #helper functions
 import os
 
-def convert(ampl, thres, upper, scale):
-    return int((ampl-thres)/(10.0/scale))
+def convert(ampl, high, thres):
+    return int( (float(ampl-thres)/float(high))*10)
 
 def clr():
     os.system('clear')
