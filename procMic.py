@@ -5,6 +5,8 @@ import numpy as np
 import os
 import pprint as pp
 
+BAR_W = 2
+BAR_H = 100
 CHUNK = 4096 # number of data points to read at a time
 RATE = 44100 # time resolution of the recording device (Hz)
 BASE = 900000 #initial sensitivity threshold
@@ -18,11 +20,11 @@ thresholds = [
 
     950000,#64
     875000,#128
-    700000,#256
-    450000,#512
-    300000,#1024
+    725000,#256
+    400000,#512
+    350000,#1024
     200000,#2048
-    100000,#4096
+    75000,#4096
     20000#8192
 ]
 highs = [0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -57,8 +59,8 @@ try:
                 spectrum[target] = 0
 
         clr()
-        pp.pprint(spectrum, width=1)
-        print('Low: {}\nHigh: {}'.format(low, high))
+        printSpect(spectrum, BAR_W, BAR_H)
+        #pp.pprint(spectrum, width=1)
 
 except KeyboardInterrupt:
     stream.stop_stream()
