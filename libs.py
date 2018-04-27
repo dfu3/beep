@@ -13,7 +13,7 @@ def printSpect(spectrum, w, h):
     print('--')
 
 def convert(ampl, high, thres):
-    return (float(ampl-thres)/float(high))
+    return (float(ampl-thres)/float(high-thres))
 
 def clr():
     os.system('clear')
