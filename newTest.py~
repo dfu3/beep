@@ -29,8 +29,8 @@ thresholds = [
     200000,
     137500,
     75000,
-    47500,
-    20000
+    40000,
+    80000
 ]
 highs = [
     9500000,
@@ -45,8 +45,8 @@ highs = [
     2000000,
     1375000,
     750000,
-    475000,
-    200000
+    400000,
+    180000
 ]
 
 try:
@@ -55,7 +55,7 @@ try:
     lastSample = dict()
 
     #adjust thresholds
-    adj = float(1.0) #% of OG
+    adj = float(.660) #% of OG
     for val in thresholds:
         val *= adj
     
@@ -63,31 +63,42 @@ try:
     while(True):
         #read and process each sample
         data = np.fromstring(stream.read(CHUNK),dtype=np.int16)
-        fft = abs(np.fft.fft(data).real)
-        fft = fft[:int(len(fft)/2)] #nyquist 
-        freq = np.fft.fftfreq(CHUNK,1.0/RATE)
-        freq = freq[:int(len(freq)/2)] #nyquist
+        freqs = np.abs(np.fft.fft(data))
+        #fft = abs(np.fft.fft(data).real)
+        #fft = fft[:int(len(fft)/2)] #nyquist 
+        #freq = np.fft.fftfreq(CHUNK,1.0/RATE)
+        #freq = freq[:int(len(freq)/2)] #nyquist
         
-        for i in range(len(thresholds)):
-            target = (2**float((i*.5)+6))
-            thres = thresholds[i]
-            ampl = fft[np.where(freq>target)[0][0]]
-        
-            if(ampl > highs[i]): highs[i] = ampl
-                            
-            if(ampl > thres):
-                cleaned = convert(ampl, highs[i], thres)
-                spectrum[target] = 1
-                #lastSample[target] = cleaned
+        for i in range(len(thresholds)-1):
+            target = int(2**float((i*.5)+6))-1
+
+            ampl = np.mean(freqs[np.where(freqs>target)]) 
+            if(not np.isnan(ampl)):
+                spectrum[target] = int(ampl+1)/100
             else:
+                spectrum[target] = 0
+            
+            #thres = thresholds[i]
+            #ampl = fft[np.where(freq>target)[0][0]]
+        
+            #if(ampl > highs[i]): highs[i] = ampl
+                            
+            #if(ampl > thres):
+            #    cleaned = convert(ampl, highs[i], thres)
+            #    spectrum[target] = cleaned
+                #lastSample[target] = cleaned
+            #else:
                 #if(target in lastSample):
                 #    spectrum[target] = float(lastSample[target]*.75)
                 #else:
-                spectrum[target] = 0
+            #    spectrum[target] = 0
                
 
         clr()
-        printSpect(spectrum, BAR_W, BAR_H)
+        #print("The frequency is {} Hz".format(np.argmax(freqs)))
+        #printSpect(spectrum, BAR_W, BAR_H)
+        for key in sorted(spectrum):
+            print('{}: {}'.format(key, spectrum[key]))
 
 except KeyboardInterrupt:
     stream.stop_stream()

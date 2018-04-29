@@ -1,4 +1,6 @@
 
+#TODO: adjust speed/delay of lanes
+
 from libs import *
 import pyaudio
 import numpy as np
@@ -7,8 +9,9 @@ import pprint as pp
 import time
 import matplotlib.pyplot as plt
 
-BAR_W = 2
-BAR_H = 50
+SYMB = '#'
+LANE_W = 2
+LANE_H = 100
 CHUNK = 4096 # number of data points to read at a time
 RATE = 44100 # time resolution of the recording device (Hz)
 
@@ -32,27 +35,15 @@ thresholds = [
     47500,
     20000
 ]
-highs = [
-    9500000,
-    9200000,
-    50000000, #wtf
-    7500000,
-    5750000,
-    4000000,
-    3750000,
-    3500000,
-    2750000,
-    2000000,
-    1375000,
-    750000,
-    475000,
-    200000
-]
-
 try:
-    ampRange = set()
+    
     spectrum = dict()
-    lastSample = dict()
+    channels = dict()
+    #init empty
+    for i in range(len(thresholds)):
+        target = (2**float((i*.5)+6))
+        spectrum[target] = [' ']*LANE_H
+        channels[target] = thresholds[i]
 
     #adjust thresholds
     adj = float(1.0) #% of OG
@@ -68,27 +59,17 @@ try:
         freq = np.fft.fftfreq(CHUNK,1.0/RATE)
         freq = freq[:int(len(freq)/2)] #nyquist
         
-        for i in range(len(thresholds)):
-            target = (2**float((i*.5)+6))
-            thres = thresholds[i]
+        for target in spectrum:
             ampl = fft[np.where(freq>target)[0][0]]
-        
-            if(ampl > highs[i]): highs[i] = ampl
-                            
-            if(ampl > thres):
-                cleaned = convert(ampl, highs[i], thres)
-                spectrum[target] = 1
-                #lastSample[target] = cleaned
-            else:
-                #if(target in lastSample):
-                #    spectrum[target] = float(lastSample[target]*.75)
-                #else:
-                spectrum[target] = 0
-               
-
+            thres = channels[target]
+            newChar = SYMB if(ampl > thres) else ' '
+            spectrum[target] = updateLane(spectrum[target], newChar) 
+            
         clr()
-        printSpect(spectrum, BAR_W, BAR_H)
-
+        #for lane in spectrum:
+        #    print(lane)
+        printLanes(spectrum, LANE_W, LANE_H)
+        
 except KeyboardInterrupt:
     stream.stop_stream()
     stream.close()
