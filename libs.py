@@ -5,7 +5,7 @@ def printLanes(spectrum, w, h):
     print('~'*h)
     for lane in sorted(spectrum):
         for s in range(w):
-            print('~|'+(''.join(spectrum[lane])))
+            print('~|'+(''.join(spectrum[lane]))+str(int(lane)))
     print('~'*h)
 
 def printSpect(spectrum, w, h):
@@ -20,8 +20,8 @@ def printSpect(spectrum, w, h):
     print('--')
 
 def updateLane(lane, newChar):#lane: arr, hit: string/char
-    for i in range(len(lane)-1):
-        lane[i+1] = lane[i]
+    for i in range(len(lane)-1, 0, -1):
+        lane[i] = lane[i-1]
     lane[0] = newChar
     return lane
 
