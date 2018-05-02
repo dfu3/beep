@@ -7,10 +7,10 @@ import pprint as pp
 import time
 import matplotlib.pyplot as plt
 
-BAR_W = 2
+BAR_W = 1
 BAR_H = 50
 CHUNK = 4096 # number of data points to read at a time
-RATE = 44100 # time resolution of the recording device (Hz)
+RATE = 150000#44100 # time resolution of the recording device (Hz)
 
 p=pyaudio.PyAudio() # start the PyAudio class
 stream=p.open(format=pyaudio.paInt16,channels=1,rate=RATE,input=True,
@@ -55,7 +55,7 @@ try:
     lastSample = dict()
 
     #adjust thresholds
-    adj = float(1.0) #% of OG
+    adj = float(.660) #% of OG
     for val in thresholds:
         val *= adj
     
@@ -77,13 +77,13 @@ try:
                             
             if(ampl > thres):
                 cleaned = convert(ampl, highs[i], thres)
-                spectrum[target] = 1
-                #lastSample[target] = cleaned
+                spectrum[target] = cleaned
+                lastSample[target] = cleaned
             else:
-                #if(target in lastSample):
-                #    spectrum[target] = float(lastSample[target]*.75)
-                #else:
-                spectrum[target] = 0
+                if(target in lastSample):
+                    spectrum[target] = float(lastSample[target]*.9)
+                else:
+                    spectrum[target] = 0
                
 
         clr()

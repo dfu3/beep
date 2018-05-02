@@ -10,31 +10,31 @@ import time
 import matplotlib.pyplot as plt
 
 DELAY = 1
-SYMB = '|'
+SYMB = '@'
 LANE_W = 1
-LANE_H = 100
+LANE_H = 50
 CHUNK = 4096 # number of data points to read at a time
-RATE = 65536 #44100 # time resolution of the recording device (Hz)
+RATE = 150000#131072 #65536 #44100 # time resolution of the recording device (Hz)
 
 p=pyaudio.PyAudio() # start the PyAudio class
 stream=p.open(format=pyaudio.paInt16,channels=1,rate=RATE,input=True,
               frames_per_buffer=CHUNK) #uses default input device
 
 thresholds = [
-    950000,
-    920000,
-    880000,
-    750000,
-    575000,
-    400000,
-    375000,
-    350000,
-    275000,
+    2000000,
+    #920000,
+    900000,
+    #750000,
+    600000,
+    #400000,
     200000,
-    137500,
-    75000,
-    47500,
+    #350000,
+    80000,
+    #200000,
+    50000,
+    #75000,
     20000
+    #20000
 ]
 try:
     
@@ -46,13 +46,15 @@ try:
     
     #init empty
     for i in range(len(thresholds)):
-        target = (2**float((i*.5)+6))
+        target = 2**(i+6) #(2**float((i*.5)+6))
+        if(i == len(thresholds)-1):
+            target*=2
         spectrum[target] = [' ']*LANE_H
         channels[target] = thresholds[i]
         #amplAvgs[target] = 0
 
     #adjust thresholds
-    adj = float(1.0) #% of OG
+    adj = float(2.5) #% of OG
     for val in thresholds:
         val *= adj
     
