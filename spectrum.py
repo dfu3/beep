@@ -16,6 +16,10 @@ p=pyaudio.PyAudio() # start the PyAudio class
 stream=p.open(format=pyaudio.paInt16,channels=1,rate=RATE,input=True,
               frames_per_buffer=CHUNK) #uses default input device
 
+# a change...
+
+# another change
+
 thresholds = [
     950000,
     920000,
